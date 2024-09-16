@@ -1,6 +1,7 @@
 package main
 
 import (
+	auth "doAnBaoMat/middleware"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,10 +17,27 @@ type Todo struct {
 	Done bool
 }
 
+type User struct {
+	Id       string
+	UserName string
+	Password string
+	Role     string
+}
+
 /*global variable*/
-var loggedInUser string
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
+var loggedInUser string
 var todos []Todo
+var users []User = []User{{
+	Id: "1", UserName: "Phat", Password: "password", Role: "senior",
+}, {
+	Id: "2", UserName: "Luan", Password: "password", Role: "employee",
+}, {
+	Id: "3", UserName: "Thong", Password: "password", Role: "employee",
+}, {
+	Id: "4", UserName: "Khoa", Password: "password", Role: "employee",
+},
+}
 
 func toggleIndex(index string) {
 	i, _ := strconv.Atoi(index)
@@ -79,6 +97,7 @@ func getData(c *gin.Context) {
 		"Todos":    todos,
 		"LoggedIn": loggedInUser != "",
 		"UserName": loggedInUser,
+		"Role":     getRole(loggedInUser),
 	})
 }
 
@@ -95,6 +114,12 @@ func toggleForm(c *gin.Context) {
 	c.Redirect(http.StatusSeeOther, "/")
 }
 
+func logout(c *gin.Context) {
+	loggedInUser = ""
+	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.Redirect(http.StatusUnauthorized, "/")
+}
+
 /* main function */
 func main() {
 	router := gin.Default()
@@ -103,9 +128,12 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 	/* END POINTS*/
 	router.GET("/", getData)
+
 	router.POST("/login", login)
-	router.POST("/add", addToDo)
-	router.POST("/toggle", toggleForm)
+	router.POST("/logout", logout)
+
+	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
+	router.POST("/toggle", auth.AuthenticateMiddleware, toggleForm)
 
 	router.Run(":8080")
 }
