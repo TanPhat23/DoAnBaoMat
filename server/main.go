@@ -48,9 +48,14 @@ func toggleIndex(index string) {
 }
 
 func getRole(username string) string {
-	if username == "senior" {
-		return "senior"
+	for i := 0; i < len(users); i++ {
+		if users[i].UserName == username {
+			return users[i].Role
+		}
 	}
+	// if username == "senior" {
+	// 	return "senior"
+	// }
 	return "employee"
 }
 
@@ -75,20 +80,33 @@ func createToken(username string) (string, error) {
 func login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
+	for i := 0; i < len(users); i++ {
+		if username == users[i].UserName && password == users[i].Password {
+			tokenString, err := createToken(username)
+			if err != nil {
+				c.String(http.StatusInternalServerError, "Error creating token")
+				return
+			}
 
-	if (username == "employee" && password == "password") || (username == "senior" && password == "password") {
-		tokenString, err := createToken(username)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Error creating token")
-			return
+			loggedInUser = username
+			fmt.Printf("Token created")
+			c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+			c.Redirect(http.StatusSeeOther, "/")
 		}
+		if i == len(users) {
+			c.String(http.StatusUnauthorized, "Invalid credentials")
+		}
+	}
 
-		loggedInUser = username
-		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.Redirect(http.StatusSeeOther, "/")
+}
+func signin(c *gin.Context) {
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+	if len(password) < 10 {
+		c.String(http.StatusBadRequest, "Length of password need to be longer than 10")
 	} else {
-		c.String(http.StatusUnauthorized, "Invalid credentials")
+		users = append(users, User{Id: strconv.Itoa(len(users) + 1), UserName: username, Password: password, Role: "employee"})
+		c.Redirect(http.StatusCreated, "/")
 	}
 }
 
