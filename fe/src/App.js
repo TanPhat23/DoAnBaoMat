@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 
 // import phanTanPhatImg from './photo/phat.png';
 // import chuongTuLuanImg from './photo/luan.png';

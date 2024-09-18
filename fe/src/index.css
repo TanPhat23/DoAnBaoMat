@@ -7,8 +7,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   /* Đảm bảo body có chiều cao 100% */
-  height: 80vh;
-  background-color: white; /* Phần trên là nền trắng */
+  height: 50vh;
+  background-color: navy; /* Phần trên là nền trắng */
   position: relative;
 }
 

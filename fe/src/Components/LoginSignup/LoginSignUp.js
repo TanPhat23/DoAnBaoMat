@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import './Login.css'
+import './Global.css'
+
+import acc from "./photo/account.png"
+import gmail from "./photo/email.png"
+import pass from "./photo/key.png"
+
 
 const LoginSignUp = () => {
     const [action, setAction] = useState("Sign Up");
@@ -22,29 +27,29 @@ const LoginSignUp = () => {
                 <div className="underline"></div>
             </div>
             <div className="inputs">
-                {action === "Login" ? <div></div> :
-                    <div className="input">
-                        <img src="" alt="" />
-                        <input
+                <div className="input">
+                    <img src={acc} alt="" />
+                       <input
                             type="text"
                             placeholder="Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
-                }
+                {action === "Login" ? <div></div> :
 
                 <div className="input">
-                    <img src="" alt="" />
+                    <img src={gmail} alt="" />
                     <input
                         type="email"
-                        placeholder="Email Id"
+                        placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
+                }
                 <div className="input">
-                    <img src="" alt="" />
+                    <img src={pass} alt="" />
                     <input
                         type="password"
                         placeholder="Password"
