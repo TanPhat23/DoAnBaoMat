@@ -1,15 +1,21 @@
 package main
 
 import (
+	"context"
 	auth "doAnBaoMat/middleware"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
-
+	
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type Todo struct {
@@ -17,27 +23,12 @@ type Todo struct {
 	Done bool
 }
 
-type User struct {
-	Id       string
-	UserName string
-	Password string
-	Role     string
-}
-
 /*global variable*/
+
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
 var loggedInUser string
 var todos []Todo
-var users []User = []User{{
-	Id: "1", UserName: "Phat", Password: "password", Role: "senior",
-}, {
-	Id: "2", UserName: "Luan", Password: "password", Role: "employee",
-}, {
-	Id: "3", UserName: "Thong", Password: "password", Role: "employee",
-}, {
-	Id: "4", UserName: "Khoa", Password: "password", Role: "employee",
-},
-}
+var role string = ""
 
 func toggleIndex(index string) {
 	i, _ := strconv.Atoi(index)
@@ -47,16 +38,27 @@ func toggleIndex(index string) {
 
 }
 
-func getRole(username string) string {
-	for i := 0; i < len(users); i++ {
-		if users[i].UserName == username {
-			return users[i].Role
-		}
+
+/* MONGO */
+func getMongoUser(username string, password string) (bool) { 
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	if err != nil{
+		return false
 	}
-	// if username == "senior" {
-	// 	return "senior"
-	// }
-	return "employee"
+	coll := client.Database("DoAnBaoMat").Collection("Users")
+	name := username
+
+	var result bson.M
+	err = coll.FindOne(context.TODO(), bson.D{{"Name" ,name}}).Decode(&result)
+	if err != nil{
+		panic(err)
+	}
+
+	if password == result["Password"]{
+		role = result["Role"].(string)
+		return true
+	}
+	return false
 }
 
 /* JWT */
@@ -65,7 +67,7 @@ func createToken(username string) (string, error) {
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": username,
 		"iss": "todo-app",
-		"aud": getRole(username),
+		"aud": role,
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
@@ -80,42 +82,40 @@ func createToken(username string) (string, error) {
 func login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	for i := 0; i < len(users); i++ {
-		if username == users[i].UserName && password == users[i].Password {
-			tokenString, err := createToken(username)
-			if err != nil {
-				c.String(http.StatusInternalServerError, "Error creating token")
-				return
-			}
-
-			loggedInUser = username
-			fmt.Printf("Token created")
-			c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-			c.Redirect(http.StatusSeeOther, "/")
+	if getMongoUser(username, password) == true {
+		tokenString, err := createToken(username)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Error creating token")
+			return
 		}
-		if i == len(users) {
-			c.String(http.StatusUnauthorized, "Invalid credentials")
-		}
-	}
 
-}
-func signin(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	if len(password) < 10 {
-		c.String(http.StatusBadRequest, "Length of password need to be longer than 10")
-	} else {
-		users = append(users, User{Id: strconv.Itoa(len(users) + 1), UserName: username, Password: password, Role: "employee"})
-		c.Redirect(http.StatusCreated, "/")
+		loggedInUser = username
+		fmt.Printf("Token created")
+		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+		c.Redirect(http.StatusSeeOther, "/")
+	}else {
+		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
 }
+
+
+// func signin(c *gin.Context) {
+// 	username := c.PostForm("username")
+// 	password := c.PostForm("password")
+// 	if len(password) < 10 {
+// 		c.String(http.StatusBadRequest, "Length of password need to be longer than 10")
+// 	} else {
+// 		users = append(users, User{Id: strconv.Itoa(len(users) + 1), UserName: username, Password: password, Role: "employee"})
+// 		c.Redirect(http.StatusCreated, "/")
+// 	}
+// }
 
 func getData(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Todos":    todos,
 		"LoggedIn": loggedInUser != "",
 		"UserName": loggedInUser,
-		"Role":     getRole(loggedInUser),
+		"Role":     role,
 	})
 }
 
@@ -140,7 +140,9 @@ func logout(c *gin.Context) {
 
 /* main function */
 func main() {
+	godotenv.Load()
 	router := gin.Default()
+	router.Use(cors.Default())
 	router.Static("/static", "./static")
 
 	router.LoadHTMLGlob("templates/*")
