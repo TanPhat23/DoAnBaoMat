@@ -8,14 +8,14 @@ import (
 	"os"
 	"strconv"
 	"time"
-	
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	cors "github.com/rs/cors/wrapper/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type Todo struct {
@@ -23,10 +23,22 @@ type Todo struct {
 	Done bool
 }
 
+type User struct {
+	Id       string
+	Username string
+	Password string
+	Role     string
+}
+
+type Result struct {
+	user  bson.M
+	token string
+}
+
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
-var loggedInUser string
+var loggedInUser Result
 var todos []Todo
 var role string = ""
 
@@ -38,24 +50,23 @@ func toggleIndex(index string) {
 
 }
 
-
 /* MONGO */
-func getMongoUser(username string, password string) (bool) { 
+func getMongoUser(username string, password string) bool {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil{
+	if err != nil {
 		return false
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := username
 
 	var result bson.M
-	err = coll.FindOne(context.TODO(), bson.D{{"Name" ,name}}).Decode(&result)
-	if err != nil{
+	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&result)
+	if err != nil {
 		panic(err)
 	}
 
-	if password == result["Password"]{
-		role = result["Role"].(string)
+	if password == result["Password"] {
+		loggedInUser.user = result
 		return true
 	}
 	return false
@@ -80,24 +91,27 @@ func createToken(username string) (string, error) {
 
 /* HTTP */
 func login(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	if getMongoUser(username, password) == true {
-		tokenString, err := createToken(username)
+	var user User
+	if err := c.BindJSON(&user); err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if getMongoUser(user.Username, user.Password) == true {
+		tokenString, err := createToken(user.Username)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Error creating token")
 			return
 		}
 
-		loggedInUser = username
 		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.Redirect(http.StatusSeeOther, "/")
-	}else {
+		loggedInUser.token = tokenString
+		// c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+		c.IndentedJSON(http.StatusOK, loggedInUser)
+	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
 }
-
 
 // func signin(c *gin.Context) {
 // 	username := c.PostForm("username")
@@ -113,8 +127,8 @@ func login(c *gin.Context) {
 func getData(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Todos":    todos,
-		"LoggedIn": loggedInUser != "",
-		"UserName": loggedInUser,
+		"LoggedIn": loggedInUser.user["Name"] != "",
+		"UserName": loggedInUser.user["Name"],
 		"Role":     role,
 	})
 }
@@ -133,7 +147,6 @@ func toggleForm(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	loggedInUser = ""
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusUnauthorized, "/")
 }
