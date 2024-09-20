@@ -31,8 +31,7 @@ type User struct {
 }
 
 type Result struct {
-	user  bson.M
-	token string
+	user bson.M
 }
 
 /*global variable*/
@@ -105,9 +104,9 @@ func login(c *gin.Context) {
 		}
 
 		fmt.Printf("Token created")
-		loggedInUser.token = tokenString
+		loggedInUser.user["Token"] = tokenString
 		// c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.IndentedJSON(http.StatusOK, loggedInUser)
+		c.IndentedJSON(http.StatusOK, loggedInUser.user)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
