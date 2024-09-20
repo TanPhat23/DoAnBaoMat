@@ -77,6 +77,16 @@
     display: flex;
     gap: 30px;
     margin: 60px auto;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    height: 59px;
+    color: #fff;
+    background: #4c00b4;
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .submit {

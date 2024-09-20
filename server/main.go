@@ -8,14 +8,14 @@ import (
 	"os"
 	"strconv"
 	"time"
-	
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
+	cors "github.com/rs/cors/wrapper/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	cors "github.com/rs/cors/wrapper/gin"
 )
 
 type Todo struct {
@@ -38,23 +38,22 @@ func toggleIndex(index string) {
 
 }
 
-
 /* MONGO */
-func getMongoUser(username string, password string) (bool) { 
+func getMongoUser(username string, password string) bool {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil{
+	if err != nil {
 		return false
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := username
 
 	var result bson.M
-	err = coll.FindOne(context.TODO(), bson.D{{"Name" ,name}}).Decode(&result)
-	if err != nil{
+	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&result)
+	if err != nil {
 		panic(err)
 	}
 
-	if password == result["Password"]{
+	if password == result["Password"] {
 		role = result["Role"].(string)
 		return true
 	}
@@ -93,11 +92,10 @@ func login(c *gin.Context) {
 		fmt.Printf("Token created")
 		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
 		c.Redirect(http.StatusSeeOther, "/")
-	}else {
+	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
 }
-
 
 // func signin(c *gin.Context) {
 // 	username := c.PostForm("username")

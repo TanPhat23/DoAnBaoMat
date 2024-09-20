@@ -2,20 +2,17 @@ import React, { useState } from "react";
 import './Global.css'
 
 import acc from "./photo/account.png"
-import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 
 
 const LoginSignUp = () => {
-    const [action, setAction] = useState("Sign Up");
+    const [action, setAction] = useState("Login");
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     // Hàm chuyển trang và xóa nội dung các trường nhập liệu
     const handleSwitch = (newAction) => {
         setAction(newAction);
-        setEmail("");
         setPassword("");
         setName("");
     };
@@ -36,18 +33,7 @@ const LoginSignUp = () => {
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
-                {action === "Login" ? <div></div> :
-
-                <div className="input">
-                    <img src={gmail} alt="" />
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
-                }
+                {action === "Login" ? <div></div> :<div className="input"> </div>}
                 <div className="input">
                     <img src={pass} alt="" />
                     <input
@@ -57,27 +43,17 @@ const LoginSignUp = () => {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
-
             </div>
-            {action === "Sign Up" ? <div></div> :
                 <div className="forgot-password">
                     Lost Password? <span>Click Here!</span>
                 </div>
-            }
-
             <div className="submit-container">
-                <button
-                    className={action === "Login" ? "submit gray" : "submit"}
-                    onClick={() => handleSwitch("Sign Up")}
-                >
-                    Sign Up
-                </button>
-                <button
-                    className={action === "Sign Up" ? "submit gray" : "submit"}
+                <nav
+                    className="Login"
                     onClick={() => handleSwitch("Login")}
                 >
                     Login
-                </button>
+                </nav>
             </div>
         </div>
     );
