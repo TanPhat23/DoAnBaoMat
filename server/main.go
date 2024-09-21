@@ -65,11 +65,7 @@ func getMongoUser(username string, password string) bool {
 	}
 
 	if password == result["Password"] {
-<<<<<<< HEAD
-		role = result["Role"].(string)
-=======
 		loggedInUser.user = result
->>>>>>> 6d3b0eeed0f4a3dd327f42012a38e97bc0a28ecc
 		return true
 	}
 	return false
@@ -108,14 +104,9 @@ func login(c *gin.Context) {
 		}
 
 		fmt.Printf("Token created")
-<<<<<<< HEAD
-		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.Redirect(http.StatusSeeOther, "/")
-=======
 		loggedInUser.user["Token"] = tokenString
 		// c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
 		c.IndentedJSON(http.StatusOK, loggedInUser.user)
->>>>>>> 6d3b0eeed0f4a3dd327f42012a38e97bc0a28ecc
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
