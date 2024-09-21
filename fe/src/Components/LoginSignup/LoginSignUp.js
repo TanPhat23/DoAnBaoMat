@@ -7,6 +7,20 @@ import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 
 
+const handleLogin = async (e) => {
+    try {
+      const response = await axios.post("http://localhost:8080/login", {
+        username: "Luan",
+        password: "babeben",
+      });
+      if (response.data) {
+        console.log("Login successful", response.data);
+      }
+    } catch (error) {
+      console.log("Error logging in:", error);
+    }
+  };
+
 const LoginSignUp = () => {
     const [action, setAction] = useState("Sign Up");
     const [name, setName] = useState("");
@@ -69,7 +83,7 @@ const LoginSignUp = () => {
             <div className="submit-container">
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}
-                    onClick={()=> getUserData()}
+                    onClick={()=> handleLogin()}
                 >
                     Login
                 </button>
