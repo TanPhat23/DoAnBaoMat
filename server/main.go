@@ -23,10 +23,21 @@ type Todo struct {
 	Done bool
 }
 
+type User struct {
+	Id       string
+	Username string
+	Password string
+	Role     string
+}
+
+type Result struct {
+	user bson.M
+}
+
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
-var loggedInUser string
+var loggedInUser Result
 var todos []Todo
 var role string = ""
 
@@ -54,7 +65,7 @@ func getMongoUser(username string, password string) bool {
 	}
 
 	if password == result["Password"] {
-		role = result["Role"].(string)
+		loggedInUser.user = result
 		return true
 	}
 	return false
@@ -79,19 +90,23 @@ func createToken(username string) (string, error) {
 
 /* HTTP */
 func login(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-	if getMongoUser(username, password) == true {
-		tokenString, err := createToken(username)
+	var user User
+	if err := c.BindJSON(&user); err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if getMongoUser(user.Username, user.Password) == true {
+		tokenString, err := createToken(user.Username)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Error creating token")
 			return
 		}
 
-		loggedInUser = username
 		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.Redirect(http.StatusSeeOther, "/")
+		loggedInUser.user["Token"] = tokenString
+		// c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+		c.IndentedJSON(http.StatusOK, loggedInUser.user)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
@@ -111,8 +126,8 @@ func login(c *gin.Context) {
 func getData(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Todos":    todos,
-		"LoggedIn": loggedInUser != "",
-		"UserName": loggedInUser,
+		"LoggedIn": loggedInUser.user["Name"] != "",
+		"UserName": loggedInUser.user["Name"],
 		"Role":     role,
 	})
 }
@@ -131,7 +146,6 @@ func toggleForm(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	loggedInUser = ""
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusUnauthorized, "/")
 }
