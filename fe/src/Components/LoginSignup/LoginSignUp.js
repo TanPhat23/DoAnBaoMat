@@ -5,6 +5,7 @@ import axios from "axios";
 import acc from "./photo/account.png"
 import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
+import { Navigate } from "react-router-dom";
 
 
 const handleLogin = async (e) => {
@@ -13,6 +14,9 @@ const handleLogin = async (e) => {
         username: "Luan",
         password: "babeben",
       });
+      if(response.data.username !="")(
+        Navigate("/")
+      )
       if (response.data) {
         console.log("Login successful", response.data);
       }
@@ -27,7 +31,7 @@ const LoginSignUp = () => {
     const [password, setPassword] = useState("");
     const [role,setRole]=useState("");
 
-    // Hàm chuyển trang và xóa nội dung các trường nhập liệu
+
     const handleSwitch = (newAction) => {
         setAction(newAction);
         setPassword("");
@@ -35,17 +39,6 @@ const LoginSignUp = () => {
         setRole("");
     };
 
-    const getUserData = async () =>{
-        try {
-            const {response}= await axios.post("http://localhost:8080/login",{
-                username : "Luan",
-                password : "babeben"
-            })
-            console.log(response);
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     return (
         <div className="container">
