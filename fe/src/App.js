@@ -1,4 +1,5 @@
 import React from 'react';
+import "./App.css"
 
 // import phanTanPhatImg from './photo/phat.png';
 // import chuongTuLuanImg from './photo/luan.png';
@@ -6,15 +7,13 @@ import React from 'react';
 // import voChiThongImg from './photo/thong.png';
 
 import Login from './Components/LoginSignup/LoginSignUp';
-
+import HomePage from './Components/HomePage/HomePage';
 function App() {
   return (
 
 
     <div id="App">
-      
-      <Login/>
-      <body><div class="wave-effect"></div></body>
+      <HomePage/>
     </div>
   );
 }
