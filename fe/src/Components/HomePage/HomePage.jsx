@@ -3,8 +3,6 @@ import Narbar from "../Navbar/Navbar";
 import bannerBackGound from "./banner.jpg"
 import {FiArrowRight} from "react-icons/fi"
 import {useNavigate} from "react-router-dom"
-import Login from '@mui/icons-material/Login';
-import LoginPage from "../LoginSignup/LoginSignUp"
 
 const HomePage = () => {
   const navigate = useNavigate();
