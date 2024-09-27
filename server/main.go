@@ -65,7 +65,7 @@ func getMongoUser(username string, password string) bool {
 	}
 
 	if password == result["Password"] {
-		loggedInUser.user = result
+		loggedInUser.user=result
 		return true
 	}
 	return false

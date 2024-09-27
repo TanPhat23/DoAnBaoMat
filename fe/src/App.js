@@ -5,18 +5,21 @@ import React from 'react';
 // import ngoDangKhoaImg from './photo/khoa.png';
 // import voChiThongImg from './photo/thong.png';
 
-import Login from './Components/LoginSignup/LoginSignUp';
+
+import { BrowserRouter ,Route, Routes} from 'react-router-dom';
+import LoginSignUp from './Components/LoginSignup/LoginSignUp';
+
 
 function App() {
+
   return (
-
-
-    <div id="App">
-      
-      <Login/>
-      <body><div class="wave-effect"></div></body>
-    </div>
+    <BrowserRouter>
+      <div id="App">
+        <Routes>
+          <Route path="/login" element={<LoginSignUp/>} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
-
 export default App;
