@@ -5,7 +5,7 @@ import axios from "axios";
 import acc from "./photo/account.png"
 import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {useCookies} from 'react-cookie';
 
 
@@ -16,6 +16,7 @@ const LoginSignUp = () => {
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [role,setRole]=useState("");
+    const navigate = useNavigate()
     
     
     const [cookies, setCookie, removeCookie] = useCookies(['cookie-name'], {
@@ -32,18 +33,20 @@ const LoginSignUp = () => {
     const handleLogin = async (e) => { 
     
         try {
+
             const response = await axios.post("http://localhost:8080/login", {
-                username: "Luan",
-                password: "babeben",
+                username: name,
+                password: password,
             });
-    
+            
             // Set the token cookie
-            setCookie("token", response.data.token, { path: '/', maxAge: 604800 }); // Expires in 7 days
-            console.log("Login successful", response.data);
-    
-            // Check if username is not empty and set a cookie with the username if needed
-            if (response.data.username) {
-                setCookie("username", response.data.username, { path: '/', maxAge: 604800 }); // Expires in 7 days
+            if (response.data.Token) {
+                // Set the token cookie
+                setCookie("token", response.data.Token, { path: '/', maxAge: 600 }); 
+                console.log("Login successful, token set");
+                navigate("/")
+            } else {
+                console.log("No token received in response");
             }
         } catch (error) {
             console.log("Error logging in:", error);
