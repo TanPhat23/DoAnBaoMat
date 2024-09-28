@@ -6,31 +6,21 @@ import acc from "./photo/account.png"
 import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 import { Navigate } from "react-router-dom";
+import {useCookies} from 'react-cookie';
 
 
-const handleLogin = async (e) => {
-    try {
-      const response = await axios.post("http://localhost:8080/login", {
-        username: "Luan",
-        password: "babeben",
-      });
-      if(response.data.username !="")(
-        Navigate("/")
-      )
-      if (response.data) {
-        console.log("Login successful", response.data);
-      }
-    } catch (error) {
-      console.log("Error logging in:", error);
-    }
-  };
+
 
 const LoginSignUp = () => {
     const [action, setAction] = useState("Sign Up");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [role,setRole]=useState("");
-
+    
+    
+    const [cookies, setCookie, removeCookie] = useCookies(['cookie-name'], {
+        doNotParse: true,
+      });
 
     const handleSwitch = (newAction) => {
         setAction(newAction);
@@ -39,6 +29,28 @@ const LoginSignUp = () => {
         setRole("");
     };
 
+    const handleLogin = async (e) => { 
+    
+        try {
+            const response = await axios.post("http://localhost:8080/login", {
+                username: "Luan",
+                password: "babeben",
+            });
+    
+            // Set the token cookie
+            setCookie("token", response.data.token, { path: '/', maxAge: 604800 }); // Expires in 7 days
+            console.log("Login successful", response.data);
+    
+            // Check if username is not empty and set a cookie with the username if needed
+            if (response.data.username) {
+                setCookie("username", response.data.username, { path: '/', maxAge: 604800 }); // Expires in 7 days
+            }
+        } catch (error) {
+            console.log("Error logging in:", error);
+        }
+    };
+    
+    
 
     return (
         <div className="container">

@@ -9,21 +9,13 @@ import "./App.css"
 
 import { BrowserRouter ,Route, Routes} from 'react-router-dom';
 import LoginSignUp from './Components/LoginSignup/LoginSignUp';
-
-import Login from './Components/LoginSignup/LoginSignUp';
 import HomePage from './Components/HomePage/HomePage';
 function App() {
 
   return (
-    <BrowserRouter>
-      <div id="App">
-        <Routes>
-          <HomePage/>
-          <Route path="/login" element={<LoginSignUp/>} />
-        </Routes>
-      </div>
-    </BrowserRouter>
-
+    <div id="App">
+    <HomePage/>
+  </div>
   );
 }
 export default App;
