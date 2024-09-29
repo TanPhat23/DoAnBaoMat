@@ -6,7 +6,7 @@ import acc from "./photo/account.png"
 import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 import { Navigate, useNavigate } from "react-router-dom";
-import {useCookies} from 'react-cookie';
+
 
 
 
@@ -19,9 +19,6 @@ const LoginSignUp = () => {
     const navigate = useNavigate()
     
     
-    const [cookies, setCookie, removeCookie] = useCookies(['cookie-name'], {
-        doNotParse: true,
-      });
 
     const handleSwitch = (newAction) => {
         setAction(newAction);
@@ -39,10 +36,7 @@ const LoginSignUp = () => {
                 password: password,
             });
             
-            // Set the token cookie
             if (response.data.Token) {
-                // Set the token cookie
-                setCookie("token", response.data.Token, { path: '/', maxAge: 600 }); 
                 console.log("Login successful, token set");
                 navigate("/")
             } else {
