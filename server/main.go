@@ -52,11 +52,7 @@ func getMongoUser(username string, password string) bool {
 	if err != nil {
 		panic(err)
 	}
-
-
 	return true
-	}
-	return false
 }
 
 func getTodos() {

@@ -28,26 +28,22 @@ const LoginSignUp = () => {
     };
 
     const handleLogin = async (e) => { 
-    
         try {
-
             const response = await axios.post("http://localhost:8080/login", {
                 username: name,
                 password: password,
-            });
-            
-            if (response.data.Token) {
-                console.log("Login successful, token set");
-                navigate("/")
-            } else {
-                console.log("No token received in response");
+            }, { withCredentials: true });
+            if (response.status === 200) {
+
+                console.log("Login successful:", response.data);
+                navigate("/")   
+                
             }
+             
         } catch (error) {
             console.log("Error logging in:", error);
         }
     };
-    
-    
 
     return (
         <div className="container">
