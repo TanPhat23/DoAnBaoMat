@@ -1,19 +1,37 @@
 import React, { useState } from "react";
-import './Global.css'
+import './Global.css';
 import axios from "axios";
 
 import acc from "./photo/account.png"
 import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 
+// import {useCookies} from "react-cookie";
+
+
+
+const handleLogin = async (e) => {
+    try {
+      const response = await axios.post("http://localhost:8080/login", {
+        username: "Luan",
+        password: "babeben",
+      });
+      if (response.data) {
+        console.log("Login successful", response.data);
+        // setCookie('token', response.data.Token);
+      }
+    } catch (error) {
+      console.log("Error logging in:", error);
+    }
+  };
 
 const LoginSignUp = () => {
-    const [action, setAction] = useState("Sign Up");
+    const [action, setAction] = useState("Login");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [role,setRole]=useState("");
+    // const [setCookie, removeCookie] = useCookies(['username']);
 
-    // Hàm chuyển trang và xóa nội dung các trường nhập liệu
     const handleSwitch = (newAction) => {
         setAction(newAction);
         setPassword("");
@@ -69,7 +87,7 @@ const LoginSignUp = () => {
             <div className="submit-container">
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}
-                    onClick={()=> getUserData()}
+                    onClick={()=> handleLogin()}
                 >
                     Login
                 </button>

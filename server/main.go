@@ -105,7 +105,7 @@ func login(c *gin.Context) {
 
 		fmt.Printf("Token created")
 		loggedInUser.user["Token"] = tokenString
-		// c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
+		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
 		c.IndentedJSON(http.StatusOK, loggedInUser.user)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
