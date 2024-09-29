@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
-	cors "github.com/rs/cors/wrapper/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,20 +24,19 @@ type Todo struct {
 	Done bool
 }
 
+type User struct {
+	IDDB     primitive.ObjectID `bson:"_id"`
+	Id       string
+	Username string
+	Password string
+	Role     string
+}
+
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
-var loggedInUser string
+var loggedInUser User
 var todos []Todo
-var role string = ""
-
-func toggleIndex(index string) {
-	i, _ := strconv.Atoi(index)
-	if i >= 0 && i < len(todos) {
-		todos[i].Done = !todos[i].Done
-	}
-
-}
 
 /* MONGO */
 func getMongoUser(username string, password string) bool {
@@ -49,17 +47,41 @@ func getMongoUser(username string, password string) bool {
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := username
 
-	var result bson.M
-	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&result)
+	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&loggedInUser)
 	if err != nil {
 		panic(err)
 	}
 
-	if password == result["Password"] {
-		role = result["Role"].(string)
-		return true
+	return true
+}
+
+func getTodos() {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	if err != nil {
+		return
 	}
-	return false
+	coll := client.Database("DoAnBaoMat").Collection("Todos")
+
+	cursor, err := coll.Find(context.TODO(), bson.D{})
+
+	if err = cursor.All(context.TODO(), &todos); err != nil {
+		panic(err)
+	}
+}
+
+func addToDoToDB(todo Todo) {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	if err != nil {
+		return
+	}
+	coll := client.Database("DoAnBaoMat").Collection("Todos")
+
+	result, err := coll.InsertOne(context.TODO(), todo)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Inserted document %v", result)
 }
 
 /* JWT */
@@ -95,31 +117,23 @@ func login(c *gin.Context) {
 		}
 
 		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.Redirect(http.StatusSeeOther, "/")
+		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
+		c.IndentedJSON(http.StatusOK, tokenString)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
 }
 
-// func signin(c *gin.Context) {
-// 	username := c.PostForm("username")
-// 	password := c.PostForm("password")
-// 	if len(password) < 10 {
-// 		c.String(http.StatusBadRequest, "Length of password need to be longer than 10")
-// 	} else {
-// 		users = append(users, User{Id: strconv.Itoa(len(users) + 1), UserName: username, Password: password, Role: "employee"})
-// 		c.Redirect(http.StatusCreated, "/")
-// 	}
-// }
-
 func getData(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"Todos":    todos,
-		"LoggedIn": loggedInUser != "",
-		"UserName": loggedInUser,
-		"Role":     role,
-	})
+	getTodos()
+	c.IndentedJSON(http.StatusOK, todos)
+}
+
+func getCurrentUser(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, loggedInUser)
+	if loggedInUser.Username == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
 }
 
 func addToDo(c *gin.Context) {
@@ -134,8 +148,7 @@ func addToDo(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	loggedInUser = ""
-	c.SetCookie("token", "", -1, "/", "localhost", false, true)
+	c.SetCookie("token", "", -1, "/", "", true, true)
 	c.Redirect(http.StatusUnauthorized, "/")
 }
 

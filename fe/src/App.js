@@ -8,8 +8,8 @@ import "./App.css"
 
 
 import { BrowserRouter ,Route, Routes} from 'react-router-dom';
-import LoginSignUp from './Components/LoginSignup/LoginSignUp';
-import HomePage from './Components/HomePage/HomePage';
+import LoginSignUp from './Components/LoginSignup/Login';
+import HomePage from './Components/HomePage/LandingPage';
 function App() {
 
   return (

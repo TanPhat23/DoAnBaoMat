@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import LoginPage from "./Components/LoginSignup/LoginSignUp";
+import LoginPage from "./Components/LoginSignup/Login";
 import Employee from './Components/Auth/Employee';
-import Menu from './Components/Auth/Quest';
+import Menu from './Components/HomePage/HomePage';
+import Admin from './Components/Auth/Admin';
 
 import {
   createBrowserRouter,
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
   {
     path: "Quest",
     element: <Menu/>,
+  },
+  {
+    path: "Admin",
+    element: <Admin/>,
   },
 ]);
 
