@@ -14,30 +14,21 @@ import (
 	"github.com/joho/godotenv"
 	cors "github.com/rs/cors/wrapper/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Todo struct {
+	ID   primitive.ObjectID `bson:"_id"`
 	Text string
 	Done bool
-}
-
-type User struct {
-	Id       string
-	Username string
-	Password string
-	Role     string
-}
-
-type Result struct {
-	user bson.M
 }
 
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
-var loggedInUser Result
+var loggedInUser string
 var todos []Todo
 var role string = ""
 
@@ -65,7 +56,7 @@ func getMongoUser(username string, password string) bool {
 	}
 
 	if password == result["Password"] {
-		loggedInUser.user = result
+		role = result["Role"].(string)
 		return true
 	}
 	return false
@@ -77,7 +68,7 @@ func createToken(username string) (string, error) {
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": username,
 		"iss": "todo-app",
-		"aud": role,
+		"aud": loggedInUser.Role,
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
@@ -104,9 +95,8 @@ func login(c *gin.Context) {
 		}
 
 		fmt.Printf("Token created")
-		loggedInUser.user["Token"] = tokenString
 		c.SetCookie("token", tokenString, 3600, "/", "localhost", false, true)
-		c.IndentedJSON(http.StatusOK, loggedInUser.user)
+		c.Redirect(http.StatusSeeOther, "/")
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
@@ -126,26 +116,25 @@ func login(c *gin.Context) {
 func getData(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Todos":    todos,
-		"LoggedIn": loggedInUser.user["Name"] != "",
-		"UserName": loggedInUser.user["Name"],
+		"LoggedIn": loggedInUser != "",
+		"UserName": loggedInUser,
 		"Role":     role,
 	})
 }
 
 func addToDo(c *gin.Context) {
-	text := c.PostForm("todo")
-	todo := Todo{Text: text, Done: false}
-	todos = append(todos, todo)
-	c.Redirect(http.StatusSeeOther, "/")
-}
-
-func toggleForm(c *gin.Context) {
-	index := c.PostForm("index")
-	toggleIndex(index)
-	c.Redirect(http.StatusSeeOther, "/")
+	var todo Todo
+	if err := c.BindJSON(&todo); err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	addToDoToDB(todo)
+	c.String(http.StatusOK, "Todo added")
 }
 
 func logout(c *gin.Context) {
+	loggedInUser = ""
 	c.SetCookie("token", "", -1, "/", "localhost", false, true)
 	c.Redirect(http.StatusUnauthorized, "/")
 }
@@ -154,18 +143,27 @@ func logout(c *gin.Context) {
 func main() {
 	godotenv.Load()
 	router := gin.Default()
-	router.Use(cors.Default())
+
+	//CROSS ORIGIN ACCESS
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           3600,
+	}))
+
 	router.Static("/static", "./static")
 
 	router.LoadHTMLGlob("templates/*")
 	/* END POINTS*/
-	router.GET("/", getData)
-
-	router.POST("/login", login)
-	router.POST("/logout", logout)
+	router.GET("/todos", auth.AuthenticateMiddleware, getData)
+	router.GET("/currentuser", auth.AuthenticateMiddleware, getCurrentUser)
 
 	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
-	router.POST("/toggle", auth.AuthenticateMiddleware, toggleForm)
+	router.POST("/login", login)
+	router.POST("/logout", logout)
 
 	router.Run(":8080")
 }

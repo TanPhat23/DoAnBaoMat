@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import LoginPage from "./Components/LoginSignup/LoginSignUp";
+import Employee from './Components/Auth/Employee';
+import Menu from './Components/Auth/Quest';
 
 import {
   createBrowserRouter,
@@ -18,6 +20,14 @@ const router = createBrowserRouter([
   {
     path: "loginPage",
     element: <LoginPage/>,
+  },
+  {
+    path: "Employee",
+    element: <Employee/>,
+  },
+  {
+    path: "Quest",
+    element: <Menu/>,
   },
 ]);
 

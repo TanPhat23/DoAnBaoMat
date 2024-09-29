@@ -6,16 +6,16 @@ import "./App.css"
 // import ngoDangKhoaImg from './photo/khoa.png';
 // import voChiThongImg from './photo/thong.png';
 
-import Login from './Components/LoginSignup/LoginSignUp';
+
+import { BrowserRouter ,Route, Routes} from 'react-router-dom';
+import LoginSignUp from './Components/LoginSignup/LoginSignUp';
 import HomePage from './Components/HomePage/HomePage';
 function App() {
+
   return (
-
-
     <div id="App">
-      <HomePage/>
-    </div>
+    <HomePage/>
+  </div>
   );
 }
-
 export default App;
