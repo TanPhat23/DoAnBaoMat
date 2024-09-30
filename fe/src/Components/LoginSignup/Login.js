@@ -3,7 +3,6 @@ import './Global.css'
 import axios from "axios";
 
 import acc from "./photo/account.png"
-import gmail from "./photo/email.png"
 import pass from "./photo/key.png"
 import { useNavigate } from "react-router-dom";
 
@@ -12,16 +11,7 @@ const LoginSignUp = () => {
     const [action, setAction] = useState("Login");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
-    const [role,setRole]=useState("");
     const navigate = useNavigate()
-    
-
-    const handleSwitch = (newAction) => {
-        setAction(newAction);
-        setPassword("");
-        setName("");
-        setRole("");
-    };
 
     const handleLogin = async (e) => { 
         try {
@@ -30,7 +20,7 @@ const LoginSignUp = () => {
                 password: password,
             }, { withCredentials: true });
             if (response.status === 200) {
-                console.log("Login successful");
+                console.log("Login successful",navigate("/home"));        
             }
         } catch (error) {
             console.log("Error logging in:", error);

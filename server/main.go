@@ -27,7 +27,7 @@ type Todo struct {
 type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
-	Username string
+	Username string `bson:"Name"`
 	Password string
 	Role     string
 }

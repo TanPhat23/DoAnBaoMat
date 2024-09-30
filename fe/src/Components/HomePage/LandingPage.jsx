@@ -3,10 +3,10 @@ import Narbar from "../Navbar/Navbar";
 import bannerBackGound from "./banner.jpg";
 import { FiArrowRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
 
-const HomePage = () => {
+const LandingPage = () => {
   const navigate = useNavigate();
+  
   return (
     <div className="Home-container">
       <Narbar />
@@ -18,7 +18,7 @@ const HomePage = () => {
           <h1 className="primary-heading">YOUR SAFE IS MY WORK</h1>
           <button
             className="secondary-button"
-            onClick={() => navigate("/loginPage")}
+            onClick={() => navigate("/login")}
           >
             LET TRY NOW
             <FiArrowRight />
@@ -32,4 +32,4 @@ const HomePage = () => {
   );
 }
 
-export default HomePage;
+export default LandingPage;

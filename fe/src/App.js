@@ -8,14 +8,22 @@ import "./App.css"
 
 
 import { BrowserRouter ,Route, Routes} from 'react-router-dom';
+
+import LandingPage from './Components/HomePage/LandingPage';
 import LoginSignUp from './Components/LoginSignup/Login';
-import HomePage from './Components/HomePage/LandingPage';
+import HomePage from './Components/HomePage/HomePage';
 function App() {
 
   return (
-    <div id="App">
-    <HomePage/>
-  </div>
+    <div className="App">
+    <BrowserRouter>
+      <Routes>
+        <Route path = "/" element={<LandingPage/>}/>
+        <Route path ="/login" element ={<LoginSignUp/>}/>
+        <Route path= "/home" element ={<HomePage/>}/>
+      </Routes>
+    </BrowserRouter>
+    </div>
   );
 }
 export default App;

@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const Admin = () => {
     const navigate = useNavigate();
-    const [todos, setTodos] = useState([]); // Use state to hold todos
+    const [todos, setTodos] = useState([]);
 
     const getTodos = async () => {
         try {
@@ -21,15 +21,15 @@ const Admin = () => {
   
     useEffect(() => {
         getTodos();
-    }, []); // Run once on mount
+    }, []); 
   return (
     <div className="todo-list">
         <h2>Your Todos:</h2>
         {todos.length > 0 ? (
           todos.map(todo => (
-            <div key={todo._id} className="todo-item"> {/* Use unique ID for key */}
+            <div key={todo._id} className="todo-item"> {}
               <p>Text: {todo.Text}</p>
-              <p>Done: {todo.Done ? "Yes" : "No"}</p> {/* Display whether done */}
+              <p>Done: {todo.Done ? "Yes" : "No"}</p> {}
             </div>
           ))
         ) : (
