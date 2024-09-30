@@ -21,10 +21,27 @@ const HomePage = () => {
       console.log("Error fetching todos:", error);
     }
   };
-  
+
   useEffect(() => {
     getTodos();
   }, []); // Run once on mount
+
+  const getCurrentUser = async() =>{
+    try{
+      const userResponse = await axios.get("http://localhost:8080/currentuser", {
+        withCredentials: true,
+      }); 
+      console.log("Current user data:", userResponse.data);
+    }catch (error) {
+      console.log("Error fetching currentuser:", error);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []); // Run once on mount
+
+  
 
   return (
     <div className="Home-container">
