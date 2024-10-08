@@ -27,12 +27,15 @@ type Todo struct {
 type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
-	Username string
+	Username string `bson:"Name"`
 	Password string
 	Role     string
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> acaa9e204e1c8694837405112d07192b3df6c443
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
@@ -52,6 +55,10 @@ func getMongoUser(username string, password string) bool {
 	if err != nil {
 		panic(err)
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> acaa9e204e1c8694837405112d07192b3df6c443
 	return true
 }
 
