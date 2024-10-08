@@ -12,7 +12,7 @@ const LandingPage = () => {
       <Narbar />
       <div className="home-banner-container">
         <div className="home-bannerImage-container">
-          {/* <img src={bannerBackGound} alt=""/> */}
+          <img src={bannerBackGound} alt=""/>
         </div>
         <div className="home-text-section">
           <h1 className="primary-heading">YOUR SAFE IS MY WORK</h1>
@@ -25,9 +25,6 @@ const LandingPage = () => {
           </button>
         </div>
       </div>  
-
-      {/* Displaying the todos */}
-      
     </div>
   );
 }

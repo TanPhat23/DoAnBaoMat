@@ -108,33 +108,4 @@
     color: #676767;
 }
 
-.wave-effect {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    
-    /* Hiệu ứng chuyển động màu RGB */
-    background: linear-gradient(1000, 
-      rgba(255, 0, 0, 0.8), 
-      rgba(0, 255, 0, 0.8), 
-      rgba(0, 0, 255, 0.8));
-    background-size: 200% 100%;
-    animation: waveMotion 4s infinite ease-in-out;
-    
-    /* Tạo hiệu ứng lượn sóng */
-    clip-path: polygon(0 80%, 100% 90%, 100% 100%, 0% 100%);
-  }
-  
-  @keyframes waveMotion {
-    0% {
-      background-position: 0% 0%;
-    }
-    50% {
-      background-position: 100% 0%;
-    }
-    100% {
-      background-position: 0% 0%;
-    }
-  }
   
