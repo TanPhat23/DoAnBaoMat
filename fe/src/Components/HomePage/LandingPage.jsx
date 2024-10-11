@@ -8,13 +8,13 @@ const LandingPage = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="Home-container">
+    <div className="w-screen h-screen">
       <Narbar />
-      <div className="home-banner-container">
-        <div className="home-bannerImage-container">
+      <div className="relative flex justify-between">
+      <div className="home-bannerImage-container">
           <img src={bannerBackGound} alt=""/>
         </div>
-        <div className="home-text-section">
+        <div className="flex flex-col justify-center py-60  ">
           <h1 className="primary-heading">YOUR SAFE IS MY WORK</h1>
           <button
             className="secondary-button"

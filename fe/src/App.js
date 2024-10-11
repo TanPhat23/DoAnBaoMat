@@ -8,26 +8,14 @@ import "./App.css"
 
 
 import { BrowserRouter ,Route, Routes} from 'react-router-dom';
-<<<<<<< HEAD
-import LoginSignUp from './Components/LoginSignup/LoginSignUp';
-=======
 
 import LandingPage from './Components/HomePage/LandingPage';
 import LoginSignUp from './Components/LoginSignup/Login';
->>>>>>> acaa9e204e1c8694837405112d07192b3df6c443
 import HomePage from './Components/HomePage/HomePage';
 function App() {
 
   return (
-<<<<<<< HEAD
-    <div id="App">
-    <HomePage/>
-  </div>
-  );
-}
-export default App;
-=======
-    <div className="App">
+    <div className="min-h-screen w-[85vw] max-w-[1900px] mx-auto">  
     <BrowserRouter>
       <Routes>
         <Route path = "/" element={<LandingPage/>}/>
@@ -39,4 +27,3 @@ export default App;
   );
 }
 export default App;
->>>>>>> acaa9e204e1c8694837405112d07192b3df6c443

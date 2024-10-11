@@ -32,14 +32,14 @@ const Navbar = () => {
       <div className='nav-logo-container'>
 
       </div>
-      <div className='navbar-links-container'>
-        <a href="">Home</a>
-        <a href="" onClick={() => navigate('/login')}>Login</a>
+      <div className="hidden md:flex space-x-6 font-bold text-gray-900 text-[20px] ">
+        <a href="" className=" hover:text-blue-600">Home</a>
+        <a href="" onClick={() => navigate('/login')} className=" hover:text-blue-600">Login</a>
       </div>
-      <div className="navbar-menu-container">
-        <HiOutlineBars3 onClick = {() => setOpenMenu(true)}/>
+      <div className="navbar-menu-container md:hidden">
+        <HiOutlineBars3 className="text-2xl cursor-pointer" onClick={() => setOpenMenu(true)} />
       </div>
-      <Drawer open = {openMenu} onClose={() => setOpenMenu(false)} anchor='right'>
+      <Drawer open={openMenu} onClose={() => setOpenMenu(false)} anchor='right'>
         <Box sx = {{width: 250}} 
           role = "presentation"
           onClick = {() => setOpenMenu(false)}
