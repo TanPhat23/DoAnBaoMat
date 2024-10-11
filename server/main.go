@@ -16,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Todo struct {
@@ -27,11 +28,10 @@ type Todo struct {
 type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
-	Username string
-	Password string
+	Username string `bson:"Name"`
+	Password string `bson:"Password"`
 	Role     string
 }
-
 
 /*global variable*/
 
@@ -53,7 +53,11 @@ func getMongoUser(username string, password string) bool {
 		panic(err)
 	}
 
-	return true
+	if err := bcrypt.CompareHashAndPassword([]byte(loggedInUser.Password), []byte(password)); err != nil {
+		panic(err)
+	} else {
+		return true
+	}
 }
 
 func getTodos() {
@@ -170,7 +174,6 @@ func main() {
 
 	router.Static("/static", "./static")
 
-	router.LoadHTMLGlob("templates/*")
 	/* END POINTS*/
 	router.GET("/todos", auth.AuthenticateMiddleware, getData)
 	router.GET("/currentuser", auth.AuthenticateMiddleware, getCurrentUser)
