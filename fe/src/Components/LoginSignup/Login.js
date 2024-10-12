@@ -29,22 +29,22 @@ const LoginSignUp = () => {
 
 
     return (
-        <div className="container">
-            <div className="header">
-                <div className="text">{action}</div>
-                <div className="underline"></div>
+        <div className="flex flex-col mt-[50px] justify-center ml-[450px] bg-white rounded-xl pb-[30px] w-[800px]">  
+            <div className="flex flex-col items-center mt-2 gap-2 w-full">
+                <div className="text-black text-4xl font-bold">{action}</div>
+                <div className="w-[61px] h-[6px] bg-[#3c009d] rounded-md"></div>
             </div>
-            <div className="inputs">
-                <div className="input">
+            <div className="inputs flex justify-center">
+                <div className="input outline">
                     <img src={acc} alt="" />
                        <input
                             type="text"
-                            placeholder="Name"
+                            placeholder="Username"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
-                <div className="input">
+                <div className="input outline">
                     <img src={pass} alt="" />
                     <input
                         type="password"
@@ -55,13 +55,13 @@ const LoginSignUp = () => {
                 </div>
 
             </div>
-            {action === "Sign Up" ? <div></div> :
-                <div className="forgot-password">
-                    Lost Password? <span>Click Here!</span>
-                </div>
-            }
+                {action === "Sign Up" ? <div></div> :
+                    <div className="flex justify-center mt-8 mr-[250px]">
+                        <p className="font-bold">Lost Password?</p> <span className="ml-2 text-purple-700 hover:text-blue-600 cursor-pointer">Click Here!</span>
+                    </div>
+                }
             
-            <div className="submit-container">
+            <div className="flex justify-center mt-14">
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}
                     onClick={()=> handleLogin()}

@@ -8,24 +8,25 @@ const LandingPage = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="w-screen h-screen">
-      <Narbar />
-      <div className="relative flex justify-between">
-      <div className="home-bannerImage-container">
+    <div className="div">
+        <div className='h-screen w-screens'>
+          <Narbar />
+        </div>
+        <div className="home-bannerImage-container ">
           <img src={bannerBackGound} alt=""/>
         </div>
-        <div className="flex flex-col justify-center py-60  ">
-          <h1 className="primary-heading">YOUR SAFE IS MY WORK</h1>
-          <button
+        <div className="flex-col ml-[100px] mt-[100px] ">
+          <h1 className="primary-heading ">YOUR SAFE IS MY WORK</h1>
+          <button 
             className="secondary-button"
             onClick={() => navigate("/login")}
           >
             LET TRY NOW
             <FiArrowRight />
-          </button>
+          </button> 
         </div>
-      </div>  
-    </div>
+      </div> 
+   
   );
 }
 

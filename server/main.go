@@ -16,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Todo struct {
@@ -28,14 +29,11 @@ type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
 	Username string `bson:"Name"`
-	Password string
+	Password string `bson:"Password"`
 	Role     string
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> acaa9e204e1c8694837405112d07192b3df6c443
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
@@ -55,11 +53,12 @@ func getMongoUser(username string, password string) bool {
 	if err != nil {
 		panic(err)
 	}
-<<<<<<< HEAD
-=======
 
->>>>>>> acaa9e204e1c8694837405112d07192b3df6c443
-	return true
+	if err := bcrypt.CompareHashAndPassword([]byte(loggedInUser.Password), []byte(password)); err != nil {
+		panic(err)
+	} else {
+		return true
+	}
 }
 
 func getTodos() {
@@ -125,7 +124,6 @@ func login(c *gin.Context) {
 
 		fmt.Printf("Token created")
 		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
-		c.IndentedJSON(http.StatusOK, tokenString)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
@@ -176,7 +174,6 @@ func main() {
 
 	router.Static("/static", "./static")
 
-	router.LoadHTMLGlob("templates/*")
 	/* END POINTS*/
 	router.GET("/todos", auth.AuthenticateMiddleware, getData)
 	router.GET("/currentuser", auth.AuthenticateMiddleware, getCurrentUser)

@@ -15,7 +15,7 @@ import HomePage from './Components/HomePage/HomePage';
 function App() {
 
   return (
-    <div className="min-h-screen w-[85vw] max-w-[1900px] mx-auto">  
+    <div className="">  
     <BrowserRouter>
       <Routes>
         <Route path = "/" element={<LandingPage/>}/>

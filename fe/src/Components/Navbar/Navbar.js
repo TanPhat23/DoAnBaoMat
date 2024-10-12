@@ -28,12 +28,9 @@ const Navbar = () => {
     },
   ]
   return (
-    <nav>
-      <div className='nav-logo-container'>
-
-      </div>
-      <div className="hidden md:flex space-x-6 font-bold text-gray-900 text-[20px] ">
-        <a href="" className=" hover:text-blue-600">Home</a>
+    <nav className='justify-end mr-[100px]'>
+      <div className="hidden md:flex space-x-10 font-bold text-gray-900 text-[20px] ">
+        <a href="" className="  hover:text-blue-600 ">Home</a>
         <a href="" onClick={() => navigate('/login')} className=" hover:text-blue-600">Login</a>
       </div>
       <div className="navbar-menu-container md:hidden">

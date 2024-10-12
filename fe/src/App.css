@@ -88,6 +88,7 @@
   .primary-heading {
     font-size: clamp(2rem, 5vw, 4rem);
     color: #4c4c4c;
+    padding-top: 80px;
     padding-left: 10%;
     /* line-height: 5rem; */
     max-width: 100%;
@@ -99,7 +100,7 @@
     margin: 1.5rem 0rem;
   }
   .secondary-button {
-    margin-left: 8%;
+    margin-left: 10%;
     padding: 1rem 2rem;
     background-color: #fe9e0d;
     outline: none;
