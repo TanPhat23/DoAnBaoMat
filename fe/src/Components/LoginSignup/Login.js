@@ -29,7 +29,7 @@ const LoginSignUp = () => {
 
 
     return (
-        <div className="flex flex-col mt-[50px] justify-center ml-[450px] bg-white rounded-xl pb-[30px] w-[800px]">  
+        <div className="flex flex-col mt-[50px] justify-center ml-[350px] bg-white rounded-xl pb-[30px] w-[800px]">  
             <div className="flex flex-col items-center mt-2 gap-2 w-full">
                 <div className="text-black text-4xl font-bold">{action}</div>
                 <div className="w-[61px] h-[6px] bg-[#3c009d] rounded-md"></div>

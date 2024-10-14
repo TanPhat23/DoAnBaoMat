@@ -9,24 +9,23 @@ const LandingPage = () => {
   
   return (
     <div className="div">
-        <div className='h-screen w-screens'>
-          <Narbar />
+      <Narbar />
+      <div className="relative flex pt-12">
+        <div className="fixed top-0 left-0 w-screen h-screen z-[-2] overflow-hidden">
+          <img src={bannerBackGound} alt="" />
         </div>
-        <div className="home-bannerImage-container ">
-          <img src={bannerBackGound} alt=""/>
-        </div>
-        <div className="flex-col ml-[100px] mt-[100px] ">
-          <h1 className="primary-heading ">YOUR SAFE IS MY WORK</h1>
-          <button 
+        <div className="flex-1 flex flex-col justify-center items-start">
+          <h1 className="text-[4rem] text-gray-700 max-w-full pl-[10%]">YOUR SAFE IS MY WORK</h1>
+          <button
             className="secondary-button"
             onClick={() => navigate("/login")}
           >
             LET TRY NOW
-            <FiArrowRight />
-          </button> 
+            <FiArrowRight/>
+          </button>
         </div>
-      </div> 
-   
+      </div>  
+    </div>
   );
 }
 
