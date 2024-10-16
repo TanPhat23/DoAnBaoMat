@@ -104,7 +104,7 @@
     margin: 1.5rem 0rem;
   }
   .secondary-button {
-    margin-left: 8%;
+    /* margin-left: 8%;
     padding: 1rem 2rem;
     background-color: #fe9e0d;
     outline: none;
@@ -114,17 +114,48 @@
     cursor: pointer;
     font-weight: 600;
     color: white;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: 0.2s; */
+    /* display: flex; */
+    /* align-items: center;
+    justify-content: center; */
+    margin-top: 10px;
+    margin-left: 110px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bolder;
+    color: #484935;
+    background: linear-gradient(45deg, #ffa600, #f1ff03);
+    border-radius: 50px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.4s ease;
+    background-size: 200% 200%;
+    animation: backgroundGradient 4s ease infinite;
   }
   .secondary-button svg {
     margin-left: 0.75rem;
     font-size: 1.5rem;
   }
   .secondary-button:hover {
-    background-color: #e48f0f;
+    /* background-color: #e48f0f; */
+    background-position: right-center;
+    box-shadow: 0 0 20px rgba(242,255,0,0.9977240896358543),
+                0 0 30px rgba(255,166,0,1),
+                0 0 20px rgba(242,255,0,0.9977240896358543),
+                0 0 30px rgba(255,166,0,1);
+    animation: backgroundGradientHover 3s ease infinite;
+  }
+
+  @keyframes backgroundGradient {
+    0%{background-position: 0% 50%;}
+    50%{background-position: 100% 50%;}
+    100%{background-position: 0% 50%;}
+  }
+
+  @keyframes backgroundGradientHover {
+    0%{background-position: 0% 50%;}
+    50%{background-position: 100% 50%;}
+    100%{background-position: 0% 50%;}
   }
 
   @media (max-width: 1000px) {

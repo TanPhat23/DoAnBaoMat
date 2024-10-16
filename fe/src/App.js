@@ -10,8 +10,9 @@ import "./App.css"
 import { BrowserRouter ,Route, Routes} from 'react-router-dom';
 
 import LandingPage from './Components/HomePage/LandingPage';
-import LoginSignUp from './Components/LoginSignup/Login';
+import Login from './Components/LoginSignup/Login';
 import HomePage from './Components/HomePage/HomePage';
+import Logout from './Components/LoginSignup/logout';
 function App() {
 
   return (
@@ -19,8 +20,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path = "/" element={<LandingPage/>}/>
-        <Route path ="/login" element ={<LoginSignUp/>}/>
-        <Route path= "/home" element ={<HomePage/>}/>
+        <Route path = "/login" element ={<Login/>}/>
+        <Route path = "/home" element ={<HomePage/>}/>
+        <Route path = "/logout" element ={<Logout/>}/>
       </Routes>
     </BrowserRouter>
     </div>

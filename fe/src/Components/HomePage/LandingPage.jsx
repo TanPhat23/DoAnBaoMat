@@ -3,6 +3,8 @@ import Narbar from "../Navbar/Navbar";
 import bannerBackGound from "./banner.jpg";
 import { FiArrowRight } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import TypeWriter from "typewriter-effect";
+
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -15,7 +17,17 @@ const LandingPage = () => {
           <img src={bannerBackGound} alt=""/>
         </div>
         <div className="home-text-section">
-          <h1 className="primary-heading">YOUR SAFE IS MY WORK</h1>
+          <h1 className="primary-heading">
+            <TypeWriter
+              options={{
+                strings: ['Welcome to our website','YOUR SAFE IS OUR WORK'],
+                autoStart: true,
+                loop: true,
+                deleteSpeed: 'natural',
+                delay:'natural',
+              }}
+            />
+          </h1>
           <button
             className="secondary-button"
             onClick={() => navigate("/login")}
@@ -28,5 +40,7 @@ const LandingPage = () => {
     </div>
   );
 }
+
+
 
 export default LandingPage;

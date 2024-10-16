@@ -7,12 +7,11 @@ import pass from "./photo/key.png"
 import { useNavigate } from "react-router-dom";
 
 
-const LoginSignUp = () => {
+const Login = () => {
     const [action, setAction] = useState("Login");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate()
-
+    const navigate = useNavigate();
     const handleLogin = async (e) => { 
         try {
             const response = await axios.post("http://localhost:8080/login", {
@@ -34,43 +33,43 @@ const LoginSignUp = () => {
                 <div className="text">{action}</div>
                 <div className="underline"></div>
             </div>
-            <div className="inputs">
-                <div className="input">
-                    <img src={acc} alt="" />
-                       <input
-                            type="text"
-                            placeholder="Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                <div className="inputs">
+                    <div className="input">
+                        <img src={acc} alt="" />
+                            <input
+                                type="text"
+                                placeholder="Name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+                    <div className="input">
+                        <img src={pass} alt="" />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                <div className="input">
-                    <img src={pass} alt="" />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
 
-            </div>
-            {action === "Sign Up" ? <div></div> :
-                <div className="forgot-password">
-                    Lost Password? <span>Click Here!</span>
                 </div>
-            }
+                {action === "Sign Up" ? <div></div> :
+                    <div className="forgot-password">
+                        Lost Password? <span>Click Here!</span>
+                    </div>
+                }
             
-            <div className="submit-container">
-                <button
-                    className={action === "Sign Up" ? "submit gray" : "submit"}
-                    onClick={()=> handleLogin()}
-                >
-                    Login
-                </button>
-            </div>
+                <div className="submit-container">
+                    <button
+                        className={action === "Sign Up" ? "submit gray" : "submit"}
+                        onClick={() => handleLogin()}
+                    >
+                        Login
+                    </button>
+                </div>
         </div>
     );
 };
 
-export default LoginSignUp;
+export default Login;
