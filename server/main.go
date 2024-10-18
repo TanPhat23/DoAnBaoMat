@@ -123,7 +123,7 @@ func login(c *gin.Context) {
 
 		fmt.Printf("Token created")
 		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
-		c.IndentedJSON(http.StatusOK, tokenString)
+		// c.IndentedJSON(http.StatusOK, tokenString)
 	} else {
 		c.String(http.StatusUnauthorized, "Invalid credentials")
 	}
