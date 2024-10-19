@@ -18,8 +18,6 @@ import (
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
 
-/* MONGO */
-
 /* JWT */
 
 func createToken(username string) (string, error) {
@@ -45,7 +43,7 @@ func login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if controller.GetMongoUser(user.Username, user.Password) == true {
+	if controller.GetMongoUser(&user) == true {
 		tokenString, err := createToken(user.Username)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Error creating token")
@@ -59,15 +57,15 @@ func login(c *gin.Context) {
 	}
 }
 
-func signIn(c *gin.Context) {
+func signin(c *gin.Context) {
 	var user controller.User
 	if err := c.BindJSON(&user); err != nil {
 		c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if err := controller.CreateMongoUser(user.Username, user.Password); err != nil {
-		c.String(http.StatusBadRequest, "Invalid Credential")
+	if err := controller.CreateMongoUser(&user); err != nil {
+		c.String(http.StatusInternalServerError, "User already exist")
 	} else {
 		tokenString, err := createToken(user.Username)
 		if err != nil {
@@ -133,7 +131,7 @@ func main() {
 
 	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
 	router.POST("/login", login)
-	router.POST("/signin", signIn)
+	router.POST("/signin", signin)
 	router.POST("/logout", logout)
 
 	router.Run(":8080")
