@@ -24,12 +24,8 @@ func login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if controller.GetMongoUser(&user) == true {
-		controller.IssueTokens(c, user)
-		fmt.Printf("Token created")
-	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid credential"})
-	}
+	mongoUser := controller.GetMongoUser(&user)
+	controller.IssueTokens(c, mongoUser)
 }
 
 func signin(c *gin.Context) {
@@ -39,10 +35,10 @@ func signin(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if err := controller.CreateMongoUser(&user); err != nil {
+	if mongoUser, err := controller.CreateMongoUser(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User already exist"})
 	} else {
-		controller.IssueTokens(c, user)
+		controller.IssueTokens(c, mongoUser)
 		fmt.Printf("Token created")
 	}
 }
@@ -88,6 +84,7 @@ func addToDo(c *gin.Context) {
 func logout(c *gin.Context) {
 	c.SetCookie("access_token", "", -1, "/", "", false, false)
 	c.SetCookie("refresh_token", "", -1, "/", "", false, false)
+	c.AbortWithStatus(http.StatusOK)
 }
 
 /* main function */

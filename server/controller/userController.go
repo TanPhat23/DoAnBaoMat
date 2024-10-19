@@ -24,10 +24,10 @@ type User struct {
 }
 
 
-func GetMongoUser(user *User) bool {
+func GetMongoUser(user *User) User {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		return false
+		panic(err)
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := user.Username
@@ -41,13 +41,13 @@ func GetMongoUser(user *User) bool {
 	if err := bcrypt.CompareHashAndPassword([]byte(LoggedInUser.Password), []byte(user.Password)); err != nil {
 		panic(err)
 	}
-	return true
+	return LoggedInUser
 }
 
-func CreateMongoUser(user *User) error {
+func CreateMongoUser(user *User) (User, error) {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		return err
+		panic(err)
 	}
 	//Check if user exist or not
 	var existUser User
@@ -76,6 +76,6 @@ func CreateMongoUser(user *User) error {
 			panic(err)
 		}
 		fmt.Println("Inserted document %v", result)
-		return nil
+		return *newUser, nil
 	}
 }
