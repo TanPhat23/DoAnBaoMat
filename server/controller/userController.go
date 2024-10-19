@@ -3,7 +3,9 @@ package controller
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
+	"strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -53,12 +55,12 @@ func CreateMongoUser(user *User) error {
 
 	if existUser.Username == user.Username {
 		panic(err)
-
 	} else {
 		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 
 		newUser := &User{
-			Id:       "0",
+			IDDB:     primitive.NewObjectID(),
+			Id:       strconv.Itoa(rand.Int()),
 			Username: user.Username,
 			Password: string(encryptedPassword),
 			Role:     "employee",
