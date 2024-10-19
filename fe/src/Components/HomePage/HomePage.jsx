@@ -4,6 +4,7 @@ import { useState , useEffect} from 'react'
 import { useNavigate } from 'react-router-dom'
 import Admin from '../Auth/Admin'
 import Employee from '../Auth/Employee'
+import NavbarLogout from '../Navbar/NavbarLogout'
 
 const HomePage = () => {
   const[user,setUser] = useState();
@@ -29,9 +30,12 @@ const HomePage = () => {
   
   return (
     <div>
+      <NavbarLogout/> 
       {user ? <div>Welcome {user.Username} to our website!!!
         {user.Role === "admin" ? <Admin/> : <Employee/>}
          </div> : <div></div>}    
+        
+      
     </div>
   );
 }

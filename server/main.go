@@ -103,10 +103,11 @@ func addToDo(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	c.SetCookie("token", "", -1, "/", "", true, true)
-	c.Redirect(http.StatusUnauthorized, "/")
-}
+	
+    c.SetCookie("token", "", -1, "/", "", false, false)
+    c.Redirect(http.StatusSeeOther, "/login")
 
+}
 /* main function */
 func main() {
 
@@ -132,7 +133,8 @@ func main() {
 	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
 	router.POST("/login", login)
 	router.POST("/signin", signin)
-	router.POST("/logout", logout)
+	
+	router.DELETE("/logout", logout)
 
 	router.Run(":8080")
 }
