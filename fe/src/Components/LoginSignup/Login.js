@@ -77,7 +77,7 @@ const LoginSignUp = () => {
                     className={action === "Sign Up" ? "submit gray" : "submit"}
                     onClick={()=> navigate("/signin")}
                 >
-                    Sign in
+                    Sign Up
                 </button>
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}

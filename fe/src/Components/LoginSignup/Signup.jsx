@@ -7,13 +7,13 @@ import pass from "./photo/key.png"
 import { Router, useNavigate } from "react-router-dom";
 
 
-const Signin = () => {
-    const [action, setAction] = useState("SignIn");
+const Signup = () => {
+    const [action, setAction] = useState("SignUp");
     const [name, setName] = useState("");
     const [password, setPassword] = useState("");
     const [checkPassword, setCheckPassword] = useState(true);
     const [confirmPassword, setConfirmPassword] = useState("");
-    const navigate = useNavigate()
+    const navigate = useNavigate()  
 
     const checkPasswordfunc = ()=>{
         if( password === confirmPassword){
@@ -25,7 +25,7 @@ const Signin = () => {
     }
 
 
-    const handleSignin = async (e) => { 
+    const handleSignup = async (e) => { 
             try {
                 if(checkPasswordfunc()){
                     const response = await axios.post("http://localhost:8080/signin", {
@@ -94,9 +94,9 @@ const Signin = () => {
                 
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}
-                    onClick={()=> handleSignin()}
+                    onClick={()=> handleSignup()}
                 >
-                    Sign In
+                    Sign Up
                 </button>
                 <button
                     className={action === "Sign Up" ? "submit gray" : "submit"}
@@ -109,4 +109,4 @@ const Signin = () => {
     );
 };
 
-export default Signin;
+export default Signup;

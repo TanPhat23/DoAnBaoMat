@@ -21,7 +21,7 @@ const HomePage = () => {
           navigate("/login")
       } catch (error) {
         console.log("Logging error: ",error);
-      }
+      } 
   }
     useEffect(()=>{
       getUser()
