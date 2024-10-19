@@ -57,6 +57,9 @@ func CreateMongoUser(user *User) error {
 		panic(err)
 	} else {
 		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+		if err != nil {
+			panic(err)
+		}
 
 		newUser := &User{
 			IDDB:     primitive.NewObjectID(),
@@ -64,10 +67,6 @@ func CreateMongoUser(user *User) error {
 			Username: user.Username,
 			Password: string(encryptedPassword),
 			Role:     "employee",
-		}
-
-		if err != nil {
-			panic(err)
 		}
 
 		result, err := coll.InsertOne(context.TODO(), newUser)
