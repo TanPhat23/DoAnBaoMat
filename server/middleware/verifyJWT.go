@@ -2,15 +2,13 @@ package auth
 
 import (
 	"fmt"
-	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
-var secretKey = []byte(os.Getenv("SECRET_KEY"))
+var secretKey []byte
 
-func verifyToken(tokenString string) (*jwt.Token, error){
+func VerifyToken(tokenString string) (*jwt.Token, error){
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
@@ -24,18 +22,14 @@ func verifyToken(tokenString string) (*jwt.Token, error){
 }
 
 func AuthenticateMiddleware(c *gin.Context){
-	tokenString, err := c.Cookie("token")
+	tokenString, err := c.Cookie("access_token")
 	if err != nil{
-		fmt.Println("Token missing in cookie")
-		c.Redirect(http.StatusSeeOther, "/login")
 		c.Abort()
 		return
 	}
 	
-	token, err := verifyToken(tokenString)
+	token, err := VerifyToken(tokenString)
 	if err != nil{
-		fmt.Println("Verify token failed")
-		c.Redirect(http.StatusSeeOther, "/login")
 		c.Abort()
 		return
 	}

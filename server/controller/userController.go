@@ -14,6 +14,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+
 type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
@@ -22,7 +23,6 @@ type User struct {
 	Role     string
 }
 
-var LoggedInUser User
 
 func GetMongoUser(user *User) bool {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
@@ -31,7 +31,8 @@ func GetMongoUser(user *User) bool {
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := user.Username
-
+	
+	var LoggedInUser User
 	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&LoggedInUser)
 	if err != nil {
 		panic(err)
@@ -57,6 +58,9 @@ func CreateMongoUser(user *User) error {
 		panic(err)
 	} else {
 		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
+		if err != nil {
+			panic(err)
+		}
 
 		newUser := &User{
 			IDDB:     primitive.NewObjectID(),
@@ -66,17 +70,12 @@ func CreateMongoUser(user *User) error {
 			Role:     "employee",
 		}
 
-		if err != nil {
-			panic(err)
-		}
-
 		result, err := coll.InsertOne(context.TODO(), newUser)
 
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println("Inserted document %v", result)
-		LoggedInUser = *newUser
 		return nil
 	}
 }
