@@ -5,8 +5,6 @@ import (
 	auth "doAnBaoMat/middleware"
 	"fmt"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -16,24 +14,7 @@ import (
 
 /*global variable*/
 
-var secretKey = []byte(os.Getenv("SECRET_KEY"))
-
 /* JWT */
-
-func createToken(username string) (string, error) {
-	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": username,
-		"iss": "todo-app",
-		"aud": controller.LoggedInUser,
-		"exp": time.Now().Add(time.Hour).Unix(),
-		"iat": time.Now().Unix(),
-	})
-	tokenString, err := claim.SignedString(secretKey)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
-}
 
 /* HTTP */
 func login(c *gin.Context) {
@@ -44,16 +25,10 @@ func login(c *gin.Context) {
 		return
 	}
 	if controller.GetMongoUser(&user) == true {
-		tokenString, err := createToken(user.Username)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Error creating token")
-			return
-		}
-
+		controller.IssueTokens(c, user)
 		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
 	} else {
-		c.String(http.StatusUnauthorized, "Invalid credentials")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid credential"})
 	}
 }
 
@@ -65,16 +40,10 @@ func signin(c *gin.Context) {
 		return
 	}
 	if err := controller.CreateMongoUser(&user); err != nil {
-		c.String(http.StatusInternalServerError, "User already exist")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User already exist"})
 	} else {
-		tokenString, err := createToken(user.Username)
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Error creating token")
-			return
-		}
-
+		controller.IssueTokens(c, user)
 		fmt.Printf("Token created")
-		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
 	}
 }
 
@@ -84,11 +53,25 @@ func getData(c *gin.Context) {
 }
 
 func getCurrentUser(c *gin.Context) {
-	if controller.LoggedInUser.Username == "" {
-		c.AbortWithStatus(http.StatusBadRequest)
-	} else {
-		c.IndentedJSON(http.StatusOK, controller.LoggedInUser)
+	tokenString, err := c.Cookie("access_token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
 	}
+	token, err := auth.VerifyToken(tokenString)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+		return
+	}
+	user := controller.User{
+		Username: claims["Username"].(string),
+		Role:     claims["Role"].(string),
+	}
+	c.IndentedJSON(http.StatusOK, user)
 }
 
 func addToDo(c *gin.Context) {
@@ -103,11 +86,9 @@ func addToDo(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	
-    c.SetCookie("token", "", -1, "/", "", false, false)
-    c.Redirect(http.StatusSeeOther, "/login")
-
+	c.SetCookie("token", "", -1, "/", "", false, false)
 }
+
 /* main function */
 func main() {
 
@@ -133,7 +114,7 @@ func main() {
 	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
 	router.POST("/login", login)
 	router.POST("/signin", signin)
-	
+
 	router.DELETE("/logout", logout)
 
 	router.Run(":8080")
