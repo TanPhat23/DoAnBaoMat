@@ -86,7 +86,8 @@ func addToDo(c *gin.Context) {
 }
 
 func logout(c *gin.Context) {
-	c.SetCookie("token", "", -1, "/", "", false, false)
+	c.SetCookie("access_token", "", -1, "/", "", false, false)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, false)
 }
 
 /* main function */
