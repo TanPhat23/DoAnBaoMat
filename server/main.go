@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	controller "doAnBaoMat/controller"
 	auth "doAnBaoMat/middleware"
 	"fmt"
 	"net/http"
@@ -12,83 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/crypto/bcrypt"
 )
-
-type Todo struct {
-	ID   primitive.ObjectID `bson:"_id"`
-	Text string
-	Done bool
-}
-
-type User struct {
-	IDDB     primitive.ObjectID `bson:"_id"`
-	Id       string
-	Username string `bson:"Name"`
-	Password string `bson:"Password"`
-	Role     string
-}
-
 
 /*global variable*/
 
 var secretKey = []byte(os.Getenv("SECRET_KEY"))
-var loggedInUser User
-var todos []Todo
 
 /* MONGO */
-func getMongoUser(username string, password string) bool {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil {
-		return false
-	}
-	coll := client.Database("DoAnBaoMat").Collection("Users")
-	name := username
-
-	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&loggedInUser)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(loggedInUser.Password), []byte(password)); err != nil {
-		panic(err)
-	} else {
-		return true
-	}
-}
-
-func getTodos() {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil {
-		return
-	}
-	coll := client.Database("DoAnBaoMat").Collection("Todos")
-
-	cursor, err := coll.Find(context.TODO(), bson.D{})
-
-	if err = cursor.All(context.TODO(), &todos); err != nil {
-		panic(err)
-	}
-}
-
-func addToDoToDB(todo Todo) {
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
-	if err != nil {
-		return
-	}
-	coll := client.Database("DoAnBaoMat").Collection("Todos")
-
-	result, err := coll.InsertOne(context.TODO(), todo)
-
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println("Inserted document %v", result)
-}
 
 /* JWT */
 
@@ -96,7 +26,7 @@ func createToken(username string) (string, error) {
 	claim := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": username,
 		"iss": "todo-app",
-		"aud": loggedInUser.Role,
+		"aud": controller.LoggedInUser,
 		"exp": time.Now().Add(time.Hour).Unix(),
 		"iat": time.Now().Unix(),
 	})
@@ -109,13 +39,13 @@ func createToken(username string) (string, error) {
 
 /* HTTP */
 func login(c *gin.Context) {
-	var user User
+	var user controller.User
 	if err := c.BindJSON(&user); err != nil {
 		c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if getMongoUser(user.Username, user.Password) == true {
+	if controller.GetMongoUser(user.Username, user.Password) == true {
 		tokenString, err := createToken(user.Username)
 		if err != nil {
 			c.String(http.StatusInternalServerError, "Error creating token")
@@ -129,26 +59,48 @@ func login(c *gin.Context) {
 	}
 }
 
+func signIn(c *gin.Context) {
+	var user controller.User
+	if err := c.BindJSON(&user); err != nil {
+		c.Error(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if err := controller.CreateMongoUser(user.Username, user.Password); err != nil {
+		c.String(http.StatusBadRequest, "Invalid Credential")
+	} else {
+		tokenString, err := createToken(user.Username)
+		if err != nil {
+			c.String(http.StatusInternalServerError, "Error creating token")
+			return
+		}
+
+		fmt.Printf("Token created")
+		c.SetCookie("token", tokenString, 3600, "/", "", true, true)
+	}
+}
+
 func getData(c *gin.Context) {
-	getTodos()
-	c.IndentedJSON(http.StatusOK, todos)
+	controller.GetTodos()
+	c.IndentedJSON(http.StatusOK, controller.Todos)
 }
 
 func getCurrentUser(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, loggedInUser)
-	if loggedInUser.Username == "" {
+	if controller.LoggedInUser.Username == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
+	} else {
+		c.IndentedJSON(http.StatusOK, controller.LoggedInUser)
 	}
 }
 
 func addToDo(c *gin.Context) {
-	var todo Todo
+	var todo controller.Todo
 	if err := c.BindJSON(&todo); err != nil {
 		c.Error(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	addToDoToDB(todo)
+	controller.AddToDoToDB(todo)
 	c.String(http.StatusOK, "Todo added")
 }
 
@@ -159,6 +111,7 @@ func logout(c *gin.Context) {
 
 /* main function */
 func main() {
+
 	godotenv.Load()
 	router := gin.Default()
 
@@ -180,6 +133,7 @@ func main() {
 
 	router.POST("/add", auth.AuthenticateMiddleware, addToDo)
 	router.POST("/login", login)
+	router.POST("/signin", signIn)
 	router.POST("/logout", logout)
 
 	router.Run(":8080")
