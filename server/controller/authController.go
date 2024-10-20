@@ -33,7 +33,7 @@ func generateAccessToken(user User) (string, error) {
 	claims := jwt.MapClaims{
 		"Username": user.Username,
 		"iss":      "todo-app",
-		"Role":     user.Username,
+		"Role":     user.Role,
 		"exp":      time.Now().Add(time.Hour).Unix(),
 		"iat":      time.Now().Unix(),
 	}
