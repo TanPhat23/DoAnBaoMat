@@ -1,6 +1,7 @@
 package controller
 
 import (
+	auth "doAnBaoMat/middleware"
 	"net/http"
 	"os"
 	"time"
@@ -31,9 +32,9 @@ func IssueTokens(c *gin.Context, user User) {
 
 func generateAccessToken(user User) (string, error) {
 	claims := jwt.MapClaims{
-		"Username": user.Username,
+		"username": user.Username,
 		"iss":      "todo-app",
-		"Role":     user.Role,
+		"role":     user.Role,
 		"exp":      time.Now().Add(time.Hour).Unix(),
 		"iat":      time.Now().Unix(),
 	}
@@ -48,4 +49,24 @@ func generateRefreshToken(user User) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(secretKey)
+}
+
+func RefreshToken(c *gin.Context) {
+    refreshToken, err := c.Cookie("refresh_token")
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token not provided"})
+        return
+    }
+
+    token, err := auth.VerifyToken(refreshToken)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid refresh token"})
+        return
+    }
+
+    claims := token.Claims.(jwt.MapClaims)
+    username := claims["username"].(string)
+    user := RefreshMongoUser(&User{Username: username})
+
+    IssueTokens(c, user)
 }

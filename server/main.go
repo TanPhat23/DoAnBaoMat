@@ -12,9 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-/*global variable*/
-
-/* JWT */
 
 /* HTTP */
 func login(c *gin.Context) {
@@ -50,9 +47,9 @@ func getData(c *gin.Context) {
 
 func getCurrentUser(c *gin.Context) {
 	tokenString, err := c.Cookie("access_token")
+	// Have no access token but have refresh token
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
+		controller.RefreshToken(c)
 	}
 	token, err := auth.VerifyToken(tokenString)
 	if err != nil {
@@ -64,8 +61,8 @@ func getCurrentUser(c *gin.Context) {
 		return
 	}
 	user := controller.User{
-		Username: claims["Username"].(string),
-		Role:     claims["Role"].(string),
+		Username: claims["username"].(string),
+		Role:     claims["role"].(string),
 	}
 	c.IndentedJSON(http.StatusOK, user)
 }
