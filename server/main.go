@@ -12,9 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-/*global variable*/
-
-/* JWT */
 
 /* HTTP */
 func login(c *gin.Context) {
@@ -24,12 +21,8 @@ func login(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if controller.GetMongoUser(&user) == true {
-		controller.IssueTokens(c, user)
-		fmt.Printf("Token created")
-	} else {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid credential"})
-	}
+	mongoUser := controller.GetMongoUser(&user)
+	controller.IssueTokens(c, mongoUser)
 }
 
 func signin(c *gin.Context) {
@@ -39,10 +32,10 @@ func signin(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	if err := controller.CreateMongoUser(&user); err != nil {
+	if mongoUser, err := controller.CreateMongoUser(&user); err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User already exist"})
 	} else {
-		controller.IssueTokens(c, user)
+		controller.IssueTokens(c, mongoUser)
 		fmt.Printf("Token created")
 	}
 }
@@ -54,9 +47,9 @@ func getData(c *gin.Context) {
 
 func getCurrentUser(c *gin.Context) {
 	tokenString, err := c.Cookie("access_token")
+	// Have no access token but have refresh token
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
+		controller.RefreshToken(c)
 	}
 	token, err := auth.VerifyToken(tokenString)
 	if err != nil {
@@ -68,8 +61,8 @@ func getCurrentUser(c *gin.Context) {
 		return
 	}
 	user := controller.User{
-		Username: claims["Username"].(string),
-		Role:     claims["Role"].(string),
+		Username: claims["username"].(string),
+		Role:     claims["role"].(string),
 	}
 	c.IndentedJSON(http.StatusOK, user)
 }
@@ -88,6 +81,7 @@ func addToDo(c *gin.Context) {
 func logout(c *gin.Context) {
 	c.SetCookie("access_token", "", -1, "/", "", false, false)
 	c.SetCookie("refresh_token", "", -1, "/", "", false, false)
+	c.AbortWithStatus(http.StatusOK)
 }
 
 /* main function */

@@ -24,30 +24,43 @@ type User struct {
 }
 
 
-func GetMongoUser(user *User) bool {
+func RefreshMongoUser(user * User) User{
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		return false
+		panic(err)
+	}
+	coll := client.Database("DoAnBaoMat").Collection("Users")
+	var dataBaseUser User
+	err = coll.FindOne(context.TODO(), bson.D{{"Name", user.Username}}).Decode(&dataBaseUser)
+	if err != nil {
+		panic(err)
+	}
+	return dataBaseUser
+}
+
+func GetMongoUser(user *User) User {
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
+	if err != nil {
+		panic(err)
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := user.Username
 	
-	var LoggedInUser User
-	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&LoggedInUser)
+	var dataBaseUser User
+	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&dataBaseUser)
 	if err != nil {
 		panic(err)
 	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(LoggedInUser.Password), []byte(user.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(dataBaseUser.Password), []byte(user.Password)); err != nil {
 		panic(err)
 	}
-	return true
+	return dataBaseUser
 }
 
-func CreateMongoUser(user *User) error {
+func CreateMongoUser(user *User) (User, error) {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
-		return err
+		panic(err)
 	}
 	//Check if user exist or not
 	var existUser User
@@ -76,6 +89,6 @@ func CreateMongoUser(user *User) error {
 			panic(err)
 		}
 		fmt.Println("Inserted document %v", result)
-		return nil
+		return *newUser, nil
 	}
 }

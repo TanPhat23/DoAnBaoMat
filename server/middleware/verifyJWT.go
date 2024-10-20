@@ -16,7 +16,7 @@ func VerifyToken(tokenString string) (*jwt.Token, error){
 		return nil, err
 	}
 	if !token.Valid{
-		return nil, fmt.Errorf("invalid toke")
+		return nil, fmt.Errorf("Invalid token")
 	}
 	return token, nil
 }
