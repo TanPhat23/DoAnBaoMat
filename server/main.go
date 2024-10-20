@@ -12,7 +12,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-
 /* HTTP */
 func login(c *gin.Context) {
 	var user controller.User
@@ -46,12 +45,10 @@ func getData(c *gin.Context) {
 }
 
 func getCurrentUser(c *gin.Context) {
-	tokenString, err := c.Cookie("access_token")
+	accessToken, err := c.Cookie("access_token")
 	// Have no access token but have refresh token
-	if err != nil {
-		controller.RefreshToken(c)
-	}
-	token, err := auth.VerifyToken(tokenString)
+
+	token, err := auth.VerifyToken(accessToken)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
 	}
