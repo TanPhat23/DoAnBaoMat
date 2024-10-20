@@ -14,7 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 type User struct {
 	IDDB     primitive.ObjectID `bson:"_id"`
 	Id       string
@@ -23,8 +22,7 @@ type User struct {
 	Role     string
 }
 
-
-func RefreshMongoUser(user * User) User{
+func RefreshMongoUser(user *User) User {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 	if err != nil {
 		panic(err)
@@ -45,7 +43,7 @@ func GetMongoUser(user *User) User {
 	}
 	coll := client.Database("DoAnBaoMat").Collection("Users")
 	name := user.Username
-	
+
 	var dataBaseUser User
 	err = coll.FindOne(context.TODO(), bson.D{{"Name", name}}).Decode(&dataBaseUser)
 	if err != nil {
